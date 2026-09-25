@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>K Money</title>
+
+<style>
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    font-family:Arial,sans-serif;
+}
+
+body{
+    background:#f3f7f5;
+    color:#17231f;
+}
+
+header{
+    background:#087f5b;
+    color:white;
+    padding:20px;
+    text-align:center;
+}
+
+header h1{
+    font-size:30px;
+}
+
+.container{
+    max-width:900px;
+    margin:auto;
+    padding:25px 15px;
+}
+
+.card{
+    background:white;
+    padding:25px;
+    border-radius:18px;
+    margin-bottom:20px;
+    box-shadow:0 5px 20px rgba(0,0,0,.08);
+}
+
+.login{
+    max-width:450px;
+    margin:40px auto;
+}
+
+input{
+    width:100%;
+    padding:13px;
+    margin:8px 0 15px;
+    border:1px solid #ddd;
+    border-radius:9px;
+}
+
+button{
+    border:none;
+    padding:13px 18px;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.primary{
+    background:#087f5b;
+    color:white;
+    width:100%;
+}
+
+.balance{
+    background:linear-gradient(135deg,#087f5b,#0aa879);
+    color:white;
+}
+
+.balance small{
+    opacity:.8;
+}
+
+.amount{
+    font-size:38px;
+    font-weight:bold;
+    margin:12px 0 25px;
+}
+
+.actions{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+}
+
+.actions button{
+    background:white;
+    color:#087f5b;
+}
+
+.nav{
+    display:flex;
+    gap:10px;
+    margin-bottom:20px;
+    flex-wrap:wrap;
+}
+
+.nav button{
+    background:#dfeee8;
+    color:#087f5b;
+}
+
+.transaction{
+    display:flex;
+    justify-content:space-between;
+    padding:14px 0;
+    border-bottom:1px solid #eee;
+}
+
+.green{
+    color:#087f5b;
+}
+
+.red{
+    color:#d33;
+}
+
+.hidden{
+    display:none;
+}
+
+footer{
+    text-align:center;
+    color:#777;
+    padding:25px;
+    font-size:13px;
+}
+
+@media(max-width:600px){
+    .actions{
+        grid-template-columns:1fr;
+    }
+
+    .amount{
+        font-size:32px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>💳 K Money</h1>
+    <p>Portefeuille électronique</p>
+</header>
+
+<div class="container">
+
+<!-- CONNEXION -->
+<div id="loginPage" class="card login">
+
+    <h2>Bienvenue sur K Money</h2>
+    <br>
+
+    <input
+        type="text"
+        id="name"
+        placeholder="Nom complet"
+    >
+
+    <input
+        type="tel"
+        id="phone"
+        placeholder="Numéro de téléphone"
+    >
+
+    <input
+        type="password"
+        id="pin"
+        placeholder="Code PIN"
+    >
+
+    <button class="primary" onclick="login()">
+        Continuer
+    </button>
+
+    <br><br>
+
+    <p style="font-size:13px;color:#777;">
+        Version de démonstration. Aucun argent réel
+        n'est transféré.
+    </p>
+
+</div>
+
+
+<!-- TABLEAU DE BORD -->
+
+<div id="dashboard" class="hidden">
+
+    <h2>
+        Bonjour <span id="userName"></span> 👋
+    </h2>
+
+    <br>
+
+    <div class="nav">
+        <button onclick="showPage('home')">
+            Accueil
+        </button>
+
+        <button onclick="showPage('history')">
+            Historique
+        </button>
+
+        <button onclick="showPage('profile')">
+            Profil
+        </button>
+    </div>
+
+
+    <!-- ACCUEIL -->
+
+    <div id="home">
+
+        <div class="card balance">
+
+            <small>
+                Solde disponible
+            </small>
+
+            <div class="amount">
+                <span id="balance">
+                    25 000
+                </span>
+                FCFA
+            </div>
+
+            <div class="actions">
+
+                <button onclick="deposit()">
+                    ＋ Déposer
+                </button>
+
+                <button onclick="sendMoney()">
+                    ↗ Envoyer
+                </button>
+
+                <button onclick="withdraw()">
+                    ↘ Retirer
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <h2>
+                Transactions récentes
+            </h2>
+
+            <br>
+
+            <div id="recentTransactions"></div>
+
+        </div>
+
+    </div>
+
+
+    <!-- HISTORIQUE -->
+
+    <div id="history" class="card hidden">
+
+        <h2>
+            Historique des transactions
+        </h2>
+
+        <br>
+
+        <div id="allTransactions"></div>
+
+    </div>
+
+
+    <!-- PROFIL -->
+
+    <div id="profile" class="card hidden">
+
+        <h2>
+            Mon profil
+        </h2>
+
+        <br>
+
+        <p>
+            <b>Nom :</b>
+            <span id="profileName"></span>
+        </p>
+
+        <br>
+
+        <p>
+            <b>Téléphone :</b>
+            <span id="profilePhone"></span>
+        </p>
+
+        <br>
+
+        <p>
+            <b>Devise :</b> FCFA
+        </p>
+
+        <br>
+
+        <button class="primary" onclick="logout()">
+            Se déconnecter
+        </button>
+
+    </div>
+
+</div>
+
+</div>
+
+
+<footer>
+    K Money © 2026 — Version de démonstration
+</footer>
+
+
+<script>
+
+let balance = 25000;
+
+let transactions = [
+    {
+        name:"Solde initial",
+        amount:25000
+    }
+];
+
+
+function login(){
+
+    let name =
+        document.getElementById("name").value.trim();
+
+    let phone =
+        document.getElementById("phone").value.trim();
+
+    let pin =
+        document.getElementById("pin").value.trim();
+
+
+    if(name === "" || phone === "" || pin === ""){
+
+        alert("Veuillez remplir tous les champs.");
+
+        return;
+    }
+
+
+    document.getElementById("userName").innerText = name;
+
+    document.getElementById("profileName").innerText = name;
+
+    document.getElementById("profilePhone").innerText = phone;
+
+
+    document
+        .getElementById("loginPage")
+        .classList.add("hidden");
+
+    document
+        .getElementById("dashboard")
+        .classList.remove("hidden");
+
+
+    updateDisplay();
+}
+
+
+function formatMoney(number){
+
+    return number.toLocaleString("fr-FR");
+
+}
+
+
+function addTransaction(name,amount){
+
+    transactions.unshift({
+        name:name,
+        amount:amount
+    });
+
+    balance += amount;
+
+    updateDisplay();
+
+}
+
+
+function deposit(){
+
+    let amount = Number(
+        prompt("Montant du dépôt (démo)")
+    );
+
+    if(amount > 0){
+
+        addTransaction(
+            "Dépôt",
+            amount
+        );
+
+    }
+
+}
+
+
+function sendMoney(){
+
+    let amount = Number(
+        prompt("Montant du transfert (démo)")
+    );
+
+
+    if(amount <= 0){
+
+        return;
+
+    }
+
+
+    if(amount > balance){
+
+        alert("Solde insuffisant.");
+
+        return;
+
+    }
+
+
+    addTransaction(
+        "Transfert envoyé",
+        -amount
+    );
+
+}
+
+
+function withdraw(){
+
+    let amount = Number(
+        prompt("Montant du retrait (démo)")
+    );
+
+
+    if(amount <= 0){
+
+        return;
+
+    }
+
+
+    if(amount > balance){
+
+        alert("Solde insuffisant.");
+
+        return;
+
+    }
+
+
+    addTransaction(
+        "Retrait",
+        -amount
+    );
+
+}
+
+
+function updateDisplay(){
+
+    document.getElementById("balance")
+        .innerText =
+        formatMoney(balance);
+
+
+    let html = "";
+
+
+    transactions.forEach(function(transaction){
+
+        let sign =
+            transaction.amount >= 0
+            ? "+"
+            : "";
+
+
+        let color =
+            transaction.amount >= 0
+            ? "green"
+            : "red";
+
+
+        html += `
+
+        <div class="transaction">
+
+            <span>
+                ${transaction.name}
+            </span>
+
+            <b class="${color}">
+                ${sign}${formatMoney(transaction.amount)}
+                FCFA
+            </b>
+
+        </div>
+
+        `;
+
+    });
+
+
+    document.getElementById(
+        "recentTransactions"
+    ).innerHTML = html;
+
+
+    document.getElementById(
+        "allTransactions"
+    ).innerHTML = html;
+
+}
+
+
+function showPage(page){
+
+    document.getElementById("home")
+        .classList.add("hidden");
+
+    document.getElementById("history")
+        .classList.add("hidden");
+
+    document.getElementById("profile")
+        .classList.add("hidden");
+
+
+    document.getElementById(page)
+        .classList.remove("hidden");
+
+}
+
+
+function logout(){
+
+    location.reload();
+
+}
+
+
+updateDisplay();
+
+</script>
+
+</body>
+</html>
